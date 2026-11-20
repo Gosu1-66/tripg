@@ -2984,7 +2984,8 @@ emailId（信的 id）、kind（flight/hotel/transport/food/spot）、title（�
 const CFG_KEY = 'tripg.fbcfg';
 const V = '10.14.1';
 const esc2 = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const readCfg = () => { try { return JSON.parse(localStorage.getItem(CFG_KEY)); } catch (e) { return null; } };
+const DEFAULT_CFG = {apiKey:'AIzaSyDlgSmeOKut4pO7NveMESrb10i5QZ7MFNM',authDomain:'tripg-sync.firebaseapp.com',projectId:'tripg-sync',storageBucket:'tripg-sync.firebasestorage.app',messagingSenderId:'924217584429',appId:'1:924217584429:web:c602f78b640590ac5141a4'};
+const readCfg = () => { try { return JSON.parse(localStorage.getItem(CFG_KEY)) || DEFAULT_CFG; } catch (e) { return DEFAULT_CFG; } };
 
 // 接受直接貼 Firebase 主控台的 `const firebaseConfig = {...}`，或純 JSON
 function parseCfg(txt){
