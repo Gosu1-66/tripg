@@ -2907,71 +2907,35 @@ emailId（信的 id）、kind（flight/hotel/transport/food/spot）、title（�
     if (S.mailAuto && Date.now() - (S.mailCheckedAt || 0) > 30 * 60e3) setTimeout(() => checkMail(false), 1500);
   })();
 })();
-/* ================= 試用行程：2026 年 10 月清邁・曼谷（從 Gmail 訂位信整理） ================= */
+/* ================= 示範行程（假資料，給第一次打開的人看） ================= */
 (() => {
   if (S.seededSample) return;
-  const t = newTrip('清邁・曼谷 10 月（試用）', '2026-10-18', 8);
-  t.code = 'CNXBKK';
-  const th = [['✈️','出發'],['🏯','抵達・清邁寧曼區'],['🛺','清邁市區'],['⛰️','湄甘蓬山村'],['🌿','清邁'],['🛫','飛回曼谷'],['🍜','曼谷'],['🏠','回台灣']];
+  const t = newTrip('清邁・曼谷 8 天（示範）', '2027-01-10', 8);
+  t.code = 'DEMO01';
+  const th = [['✈️','出發'],['🏯','抵達・清邁'],['🛺','古城散步'],['⛰️','山村一日'],['🌿','咖啡與市集'],['🛫','飛曼谷'],['🍜','曼谷美食'],['🏠','回台灣']];
   t.days.forEach((d, i) => { d.emoji = th[i][0]; d.theme = th[i][1]; });
   const D = i => t.days[i].id;
   const base = (o) => ({ id: uid(), photos: [], cover: 0, coverPos: 'mid', members: [t.meId], note: '', location: '', fromMail: 'sample', ...o });
   const add = o => insertOrdered(t, base(o));
-  add({ dayId: D(0), kind: 'flight', time: '22:40', title: '台北桃園 → 曼谷素萬那普', airline: '中華航空', flightNo: 'CI837', cabin: '經濟艙', bagChecked: '23kg × 1', bagCabin: '7kg × 1',
-    legs: [{ flightNo: 'CI837', from: 'TPE 臺灣桃園國際機場', to: 'BKK 素萬那普機場', depDate: '2026-10-18', depTime: '22:40', arrDate: '2026-10-19', arrTime: '01:25', terminal: 'T1' }],
-    platform: 'Trip.com', note: '原本的回程 CI836（10/23）被航空公司取消，改搭 10/25 泰國獅航 SL396。' });
-  add({ dayId: D(0), kind: 'shop', time: '', title: '東南亞 5 國 eSIM（無限流量）', platform: 'KKday', note: 'KKday 訂購，出發前記得安裝。' });
-  add({ dayId: D(1), kind: 'transport', time: '02:50', title: 'Grab：素萬那普機場出發', mode: '計程車', provider: 'Grab（JustGrab）', segments: [{ mode: '計程車', from: '素萬那普機場', to: '', dep: '02:50', arr: '', note: '' }], cost: { label: '車資', amount: 425, currency: 'THB', perPerson: false } });
-  add({ dayId: D(1), kind: 'hotel', time: '14:00', title: '清邁寧曼十二山景飯店', location: '3 Soi 12 Nimmanhaemin Road, Suthep, Chiang Mai 50200', nights: 2, checkOut: '12:00', room: '豪華大床房（浴缸）', platform: 'Trip.com', phone: '+66-53-215558',
-    note: '入住要付現金押金 THB 2,000，退房退還。飯店禁止攜帶榴槤。', cost: { label: '房費', amount: 4248, currency: 'TWD', perPerson: false }, mapsUrl: mapsSearch('Mountain View Nimman 12 Hotel Chiang Mai') });
-  add({ dayId: D(3), kind: 'hotel', time: '14:00', title: '坤考農場民宿 - 湄甘蓬', location: 'Mae Kampong, Mae On, Chiang Mai', nights: 1, checkOut: '', platform: 'Agoda', phone: '+66 90 893 3472',
-    note: 'KhuenKhao Farmstay。入住下午 2 點後，有問題可以打給房東。', mapsUrl: mapsSearch('KhuenKhao Farmstay Mae Kampong') });
-  add({ dayId: D(5), kind: 'flight', time: '13:55', title: '清邁 → 曼谷素萬那普', airline: '泰國越捷航空', flightNo: 'VZ105', cabin: '經濟艙',
-    legs: [{ flightNo: 'VZ105', from: 'CNX 清邁國際機場', to: 'BKK 素萬那普機場', depDate: '2026-10-23', depTime: '13:55', arrDate: '2026-10-23', arrTime: '15:15', terminal: '' }], platform: 'Trip.com' });
-  add({ dayId: D(7), kind: 'transport', time: '01:00', title: 'Grab：前往廊曼機場', mode: '計程車', provider: 'Grab（JustGrab）', segments: [{ mode: '計程車', from: '曼谷市區', to: '廊曼機場', dep: '01:00', arr: '01:40', note: '' }], cost: { label: '車資', amount: 364, currency: 'THB', perPerson: false } });
-  add({ dayId: D(7), kind: 'flight', time: '03:00', title: '曼谷廊曼 → 台北桃園', airline: '泰國獅航', flightNo: 'SL396', cabin: '經濟艙', bagChecked: '加購託運行李', bagCabin: '',
-    legs: [{ flightNo: 'SL396', from: 'DMK 廊曼國際機場', to: 'TPE 臺灣桃園國際機場', depDate: '2026-10-25', depTime: '03:00', arrDate: '2026-10-25', arrTime: '08:00', terminal: 'T1' }],
-    platform: 'Trip.com', note: '總價含座位 TWD 200、託運行李 TWD 1,111。', cost: { label: '機票', amount: 12856, currency: 'TWD', perPerson: false } });
+  add({ dayId: D(0), kind: 'flight', time: '08:30', title: '台北桃園 → 清邁', airline: '示範航空', flightNo: 'XX123', cabin: '經濟艙', bagChecked: '23kg × 1', bagCabin: '7kg × 1',
+    legs: [{ flightNo: 'XX123', from: 'TPE 臺灣桃園國際機場', to: 'CNX 清邁國際機場', depDate: '2027-01-10', depTime: '08:30', arrDate: '2027-01-10', arrTime: '11:45', terminal: 'T1' }],
+    platform: '示範平台', note: '這是示範資料，可以直接刪掉或改成你的行程。', cost: { label: '機票', amount: 9800, currency: 'TWD', perPerson: false } });
+  add({ dayId: D(0), kind: 'shop', time: '', title: '泰國 eSIM（無限流量）', platform: '示範平台', note: '出發前先安裝。' });
+  add({ dayId: D(1), kind: 'transport', time: '12:30', title: 'Grab：機場到飯店', mode: '計程車', provider: 'Grab', segments: [{ mode: '計程車', from: '清邁機場', to: '寧曼區', dep: '12:30', arr: '13:00', note: '' }], cost: { label: '車資', amount: 180, currency: 'THB', perPerson: false } });
+  add({ dayId: D(1), kind: 'hotel', time: '14:00', title: '寧曼山景示範飯店', location: 'Nimmanhaemin Road, Chiang Mai', nights: 3, checkOut: '12:00', room: '豪華大床房', platform: '示範平台', note: '入住時可能需要押金，退房退還。', cost: { label: '房費', amount: 6300, currency: 'TWD', perPerson: false }, mapsUrl: mapsSearch('Nimmanhaemin Road Chiang Mai') });
+  add({ dayId: D(3), kind: 'hotel', time: '14:00', title: '湄甘蓬山村民宿', location: 'Mae Kampong, Chiang Mai', nights: 1, checkOut: '', platform: '示範平台', note: '山上晚上較涼，記得帶外套。', mapsUrl: mapsSearch('Mae Kampong Chiang Mai') });
+  add({ dayId: D(5), kind: 'flight', time: '13:55', title: '清邁 → 曼谷', airline: '示範航空', flightNo: 'XX456', cabin: '經濟艙',
+    legs: [{ flightNo: 'XX456', from: 'CNX 清邁國際機場', to: 'BKK 素萬那普機場', depDate: '2027-01-15', depTime: '13:55', arrDate: '2027-01-15', arrTime: '15:15', terminal: '' }], platform: '示範平台' });
+  add({ dayId: D(7), kind: 'flight', time: '10:00', title: '曼谷 → 台北桃園', airline: '示範航空', flightNo: 'XX789', cabin: '經濟艙', bagChecked: '23kg × 1', bagCabin: '',
+    legs: [{ flightNo: 'XX789', from: 'BKK 素萬那普機場', to: 'TPE 臺灣桃園國際機場', depDate: '2027-01-17', depTime: '10:00', arrDate: '2027-01-17', arrTime: '15:00', terminal: 'T1' }],
+    platform: '示範平台', cost: { label: '機票', amount: 9200, currency: 'TWD', perPerson: false } });
   const ex = (date, time, title, amount, currency, cat, pay = 'card') => t.expenses.push({ id: uid(), date, time, pay, amount, currency, feeOn: false, feePct: 0, cat, title, payer: t.meId, split: [t.meId], note: '' });
-  ex('2026-10-19', '02:50', 'Grab 機場出發', 425, 'THB', 'transport');
-  ex('2026-10-19', '14:00', '清邁寧曼十二山景飯店 2 晚', 4248, 'TWD', 'hotel');
-  [['14:26', 74], ['15:51', 72], ['16:50', 177], ['18:06', 75], ['19:53', 114], ['21:32', 69]].forEach(([tm, a]) => ex('2026-10-20', tm, 'Grab 清邁市區', a, 'THB', 'transport'));
-  [['16:35', 476, 'Grab 機場進市區（含過路費）'], ['18:42', 192, 'Grab'], ['18:44', 20, 'Grab 小費'], ['19:37', 188, 'Grab'], ['21:47', 205, 'Grab'], ['23:13', 104, 'Grab']].forEach(([tm, a, n]) => ex('2026-10-23', tm, n, a, 'THB', 'transport'));
-  [['13:50', 82, 'GrabFood ChaTraMue 手標泰奶'], ['14:17', 121, 'GrabFood 打拋飯'], ['20:26', 93, 'GrabFood 煎蛋飯'], ['20:41', 82, 'GrabFood ChaTraMue 手標泰奶']].forEach(([tm, a, n]) => ex('2026-10-24', tm, n, a, 'THB', 'food'));
-  ex('2026-10-25', '01:39', 'Grab 前往廊曼機場', 364, 'THB', 'transport');
-  ex('2026-10-25', '03:00', '泰國獅航 SL396 機票', 12856, 'TWD', 'transport');
+  ex('2027-01-10', '12:30', 'Grab 機場到飯店', 180, 'THB', 'transport');
+  ex('2027-01-11', '12:10', '泰式午餐', 220, 'THB', 'food', 'cash');
+  ex('2027-01-11', '19:30', '夜市小吃', 350, 'THB', 'food', 'cash');
+  ex('2027-01-12', '15:00', '手標泰奶', 85, 'THB', 'food', 'cash');
+  S.trips = S.trips.filter(x => !(x.name === '曼谷 5 天' && !x.items.length && !x.expenses.length));
   S.trips.unshift(t); S.seededSample = true; save(); render();
-})();
-/* 試用行程補上 10/22 雲之尚·Zero 別墅（使用者確認有入住，之後全額退款） */
-(() => {
-  const t = S.trips.find(x => x.code === 'CNXBKK'); if (!t || S.sampleFix1) return;
-  if (!t.items.some(i => /Zero/.test(i.title))) {
-    const d = t.days[diffDays(t.start, '2026-10-22')]; if (!d) return;
-    insertOrdered(t, { id: uid(), dayId: d.id, kind: 'hotel', time: '14:00', title: '雲之尚·Zero 別墅飯店（塔佩門店）', location: '21/3-4 Sriphum Road, Si Phum, Chiang Mai 50200', nights: 1, checkOut: '12:00', room: '小藝・和風雅緻大床房', platform: 'Trip.com', phone: '+86 135 8723 3999',
-      note: '有入住，但體驗很差給了負評，之後飯店同意全額退款（原價 TWD 1,819，已退）。', photos: [], cover: 0, coverPos: 'mid', members: [t.meId], fromMail: 'sample', mapsUrl: mapsSearch('Yunzhishang Zero Villa Tha Phae Chiang Mai') });
-    if (d.theme === '清邁') d.theme = '清邁古城・塔佩門';
-  }
-  S.sampleFix1 = true; save(); render();
-})();
-/* 試用行程補上國泰卡刷卡紀錄（10/18–10/25） */
-(() => {
-  const t = S.trips.find(x => x.code === 'CNXBKK'); if (!t || S.sampleFix2) return;
-  const ex = (date, time, title, amount, cat, note = '國泰世華卡（卡號末四碼 3282）') => t.expenses.push({ id: uid(), date, time, pay: 'card', amount, currency: 'TWD', feeOn: false, feePct: 0, cat, title, payer: t.meId, split: [t.meId], note });
-  ex('2026-10-19', '12:51', '泰國越捷航空（曼谷→清邁機票？）', 1253, 'transport', '國泰世華卡 3282。信箱裡沒有這張機票的確認信，從金額和時間推測是 10/19 曼谷飛清邁。');
-  ex('2026-10-19', '13:16', 'VENDI 自動販賣機', 78, 'shop');
-  ex('2026-10-20', '13:05', 'Agoda 坤考農場民宿 1 晚', 1426, 'hotel');
-  ex('2026-10-20', '18:43', 'KOI Thé 清邁 Maya', 103, 'food');
-  ex('2026-10-21', '12:54', 'KFC 寧曼 Soi 12', 92, 'food');
-  ex('2026-10-23', '01:36', "Lotus's 超市", 219, 'shop');
-  ex('2026-10-23', '16:46', 'Subway 素萬那普機場', 112, 'food');
-  ex('2026-10-25', '00:03', '7-11 Rama 4', 442, 'shop');
-  const farm = t.items.find(i => /坤考/.test(i.title)); if (farm) farm.cost = { label: '房費', amount: 1426, currency: 'TWD', perPerson: false };
-  const d2 = t.days[1]; if (!t.items.some(i => /越捷.*曼谷.*清邁|曼谷 → 清邁/.test(i.title + (i.airline || '')))) {
-    insertOrdered(t, { id: uid(), dayId: d2.id, kind: 'flight', time: '', title: '曼谷 → 清邁（推測）', airline: '泰國越捷航空', flightNo: '', cabin: '', legs: [{ flightNo: '', from: 'BKK 素萬那普機場', to: 'CNX 清邁國際機場', depDate: '2026-10-19', depTime: '', arrDate: '2026-10-19', arrTime: '', terminal: '' }],
-      note: '信箱沒有確認信，是從 10/19 中午刷卡 NT$1,253（泰國越捷）推測的，時間和航班號請自己補。', cost: { label: '機票', amount: 1253, currency: 'TWD', perPerson: false }, photos: [], cover: 0, coverPos: 'mid', members: [t.meId], fromMail: 'sample' });
-    const L = dayItems(t, d2.id); const f = L.pop(); const hi = L.findIndex(i => i.kind === 'hotel'); L.splice(hi < 0 ? L.length : hi, 0, f); L.forEach((x, n) => x.order = n);
-  }
-  S.sampleFix2 = true; save(); render();
 })();
 </script>
 <script>
