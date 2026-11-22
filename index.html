@@ -826,6 +826,8 @@ function newTrip(name = '新行程', start = localISO(new Date()), n = 5){
     items: [], members: [me], meId: me.id, expenses: [], fund: [], journal: [], todos: [], packing: {}, docs: [],
     rates: { ...DEFAULT_RATES }, currency: 'TWD', createdAt: Date.now() };
 }
+// 新手機第一次從行程連結打開：不放曼谷示範資料，只放朋友分享的行程
+const FRESH_LINK = (location.hash || '').startsWith('#t-') && !localStorage.getItem(KEY);
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('儲存失敗：手機空間可能不足'); } try { window.CLOUD?.onSave?.(); } catch (e) {} }
@@ -857,6 +859,7 @@ function migrate(D = S, main = true){
     for (const p of D.pocket) { p.cat ||= /餐|食|咖啡|酒|bar|cafe|麵|飯|甜|冰|海鮮/i.test(p.type || '') ? 'food' : 'spot'; p.tags ||= []; p.photos ||= []; }
     D.v = 2;
   }
+  if (main && FRESH_LINK) D.seededBkk = true;
   if (main && !D.seededBkk) {
     const seed = SEED_BKK();
     for (const p of seed.pocket) if (!D.pocket.some(x => x.name === p.name)) D.pocket.push(p);
@@ -2492,7 +2495,9 @@ async function checkTripLink(){
   tr.rates ||= { ...DEFAULT_RATES }; tr.currency ||= 'TWD'; tr.createdAt = Date.now();
   if (!tr.members?.length) { const me = { id: uid(), name: '我', avatar: '🧑' }; tr.members = [me]; tr.meId = me.id; }
   tr.items.forEach(i => { i.photos ||= []; i.members = [tr.meId]; });
-  S.trips.unshift(tr); save(); openTrip(tr.id);
+  S.trips.unshift(tr);
+  if (FRESH_LINK) S.trips = S.trips.filter(x => x === tr || x.items.length);
+  save(); openTrip(tr.id);
   toast(`已加入「${tr.name}」`);
 }
 window.addEventListener('hashchange', checkTripLink);
@@ -2952,6 +2957,7 @@ emailId（信的 id）、kind（flight/hotel/transport/food/spot）、title（�
 })();
 /* ================= 示範行程（假資料，給第一次打開的人看） ================= */
 (() => {
+  if (FRESH_LINK) { S.seededSample = true; save(); }
   if (S.seededSample) return;
   const t = newTrip('清邁・曼谷 8 天（示範）', '2027-01-10', 8);
   t.code = 'DEMO01';
