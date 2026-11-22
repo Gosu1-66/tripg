@@ -827,7 +827,7 @@ function newTrip(name = '新行程', start = localISO(new Date()), n = 5){
     rates: { ...DEFAULT_RATES }, currency: 'TWD', createdAt: Date.now() };
 }
 // 新手機第一次從行程連結打開：不放曼谷示範資料，只放朋友分享的行程
-const FRESH_LINK = (location.hash || '').startsWith('#t-') && !localStorage.getItem(KEY);
+const FRESH_LINK = /^#(t|trip)-/.test(location.hash || '') && !localStorage.getItem(KEY);
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { S = {}; }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('儲存失敗：手機空間可能不足'); } try { window.CLOUD?.onSave?.(); } catch (e) {} }
@@ -2481,9 +2481,16 @@ async function unpackTrip(s){
 async function tripLink(t){ return location.origin + location.pathname + '#t-' + await packTrip(t); }
 async function checkTripLink(){
   const h = (location.hash || '').slice(1);
-  if (!h.startsWith('t-')) return;
+  if (!h.startsWith('t-') && !h.startsWith('trip-')) return;
   try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
-  let d; try { d = await unpackTrip(h.slice(2)); } catch (e) { toast('行程連結讀不到，請確認連結有完整複製'); return; }
+  let d;
+  if (h.startsWith('trip-')) {
+    // 短網址：#trip-名稱 → 讀網站上的 shared/名稱.json
+    const name = h.slice(5).replace(/[^a-z0-9-]/gi, '');
+    try { const r = await fetch(`shared/${name}.json`, { cache: 'no-cache' }); if (!r.ok) throw 0; d = await r.json(); } catch (e) { toast('找不到這個分享行程，可能已經被移除'); return; }
+  } else {
+    try { d = await unpackTrip(h.slice(2)); } catch (e) { toast('行程連結讀不到，請確認連結有完整複製'); return; }
+  }
   const tr = d?.trip;
   if (d?.kind !== 'trip' || !tr || !Array.isArray(tr.days) || !Array.isArray(tr.items)) { toast('行程連結格式不對'); return; }
   const src = tr.srcId || tr.id;
