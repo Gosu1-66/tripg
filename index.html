@@ -2458,6 +2458,45 @@ function checkHash(){
 }
 window.addEventListener('hashchange', checkHash);
 
+/* ================= 行程連結（#t-…）：點連結就把整份行程加進 App ================= */
+const b64u = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = s => { s = s.replace(/-/g, '+').replace(/_/g, '/').replace(/[^A-Za-z0-9+/]/g, ''); while (s.length % 4) s += '='; return Uint8Array.from(atob(s), c => c.charCodeAt(0)); };
+async function packTrip(t){
+  // 只分享行程本身：不帶開銷、日記、證件、照片、訂位代號
+  const c = JSON.parse(JSON.stringify(t));
+  c.expenses = []; c.fund = []; c.journal = []; c.docs = []; c.todos = []; c.packing = {};
+  c.members = [{ id: c.meId, name: '我', avatar: '🧑' }];
+  c.items.forEach(i => { i.photos = []; delete i.ref; delete i.members; });
+  const bytes = new TextEncoder().encode(JSON.stringify({ kind: 'trip', trip: c }));
+  const z = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  return b64u(new Uint8Array(await new Response(z).arrayBuffer()));
+}
+async function unpackTrip(s){
+  const z = new Blob([unb64u(s)]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  return JSON.parse(await new Response(z).text());
+}
+async function tripLink(t){ return location.origin + location.pathname + '#t-' + await packTrip(t); }
+async function checkTripLink(){
+  const h = (location.hash || '').slice(1);
+  if (!h.startsWith('t-')) return;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  let d; try { d = await unpackTrip(h.slice(2)); } catch (e) { toast('行程連結讀不到，請確認連結有完整複製'); return; }
+  const tr = d?.trip;
+  if (d?.kind !== 'trip' || !tr || !Array.isArray(tr.days) || !Array.isArray(tr.items)) { toast('行程連結格式不對'); return; }
+  const src = tr.srcId || tr.id;
+  const old = S.trips.find(x => x.id === src || x.srcId === src);
+  if (old) { openTrip(old.id); toast(`已打開「${old.name}」`); return; }
+  // 換新的 id 和代碼，避免和分享者的雲端行程衝突
+  tr.srcId = src; tr.id = uid(); tr.code = Math.random().toString(36).slice(2, 8).toUpperCase();
+  tr.expenses ||= []; tr.fund ||= []; tr.journal ||= []; tr.todos ||= []; tr.packing ||= {}; tr.docs ||= [];
+  tr.rates ||= { ...DEFAULT_RATES }; tr.currency ||= 'TWD'; tr.createdAt = Date.now();
+  if (!tr.members?.length) { const me = { id: uid(), name: '我', avatar: '🧑' }; tr.members = [me]; tr.meId = me.id; }
+  tr.items.forEach(i => { i.photos ||= []; i.members = [tr.meId]; });
+  S.trips.unshift(tr); save(); openTrip(tr.id);
+  toast(`已加入「${tr.name}」`);
+}
+window.addEventListener('hashchange', checkTripLink);
+
 /* ================= 分享行程（LINE） ================= */
 function tripText(t, onlyDay){
   const lines = []; const days = onlyDay ? [onlyDay] : t.days;
@@ -2482,7 +2521,10 @@ function shareSheet(){
   sheet('分享行程', `<p class="sub" style="margin-top:10px">已排版為適合 LINE 聊天的純文字格式</p>
     <div class="seg"><button data-sh="today" class="on">分享今日（Day ${di + 1} · ${fmtMD(dayISO(t, di))}）</button><button data-sh="all">分享全部（${t.days.length} 天）</button></div>
     <div class="sub" style="margin:6px 0">文字預覽（可以直接修改）</div><textarea class="i preview" id="sh_txt" style="min-height:220px"></textarea>
-    <div class="sheet-foot"><button class="btn grow" id="sh_copy">${I.copy.replace('<svg','<svg width="15" height="15"')} 僅複製文字</button><a class="btn solid grow" id="sh_line" target="_blank" rel="noopener">分享至 LINE</a></div>`, (el) => {
+    <div class="sheet-foot"><button class="btn grow" id="sh_copy">${I.copy.replace('<svg','<svg width="15" height="15"')} 僅複製文字</button><a class="btn solid grow" id="sh_line" target="_blank" rel="noopener">分享至 LINE</a></div>
+    <button class="btn block" id="sh_link" style="margin-top:8px">複製行程連結（朋友點開就能看整份行程）</button>
+    <div class="sub" style="margin-top:4px">連結只含行程，不含開銷、日記、證件和照片。</div>`, (el) => {
+    el.querySelector('#sh_link').onclick = async () => { let u; try { u = await tripLink(t); } catch (e) { toast('這支手機的瀏覽器太舊，無法產生連結'); return; } try { await navigator.clipboard.writeText(u); toast('已複製行程連結，貼給朋友即可'); } catch (e) { showText('行程連結', u, '全選後拷貝，貼給朋友。'); } };
     const ta = el.querySelector('#sh_txt'); const line = el.querySelector('#sh_line');
     const TT = s => UI.lang !== 'zh' ? s.split('\n').map(I18N.tr).join('\n') : s;
     const upd = () => { ta.value = TT(mode === 'today' ? tripText(t, d) : tripText(t)); line.href = 'https://line.me/R/share?text=' + encodeURIComponent(ta.value); };
@@ -2657,6 +2699,7 @@ const SEED_DATA = {"pocket": [{"id": "bkk-sanctuary", "name": "Sanctuary Bangkok
 migrate();
 render();
 checkHash();
+checkTripLink();
 (async () => {
   try {
     if (!window.claude?.use) return;
