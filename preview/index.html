@@ -2854,9 +2854,17 @@ function wxInfo(code){
   return ['🌡️', '天氣'];
 }
 const wxPlace = (t, d) => d.wxPlace || t.wxPlace || null;
+const WX_ALIAS = { '清邁': 'Chiang Mai', '清萊': 'Chiang Rai', '芭達雅': 'Pattaya', '芭提雅': 'Pattaya', '普吉': 'Phuket', '普吉島': 'Phuket', '蘇美': 'Ko Samui', '蘇美島': 'Ko Samui', '華欣': 'Hua Hin', '喀比': 'Krabi', '甲米': 'Krabi', '大城': 'Ayutthaya', '拜縣': 'Pai', '沖繩': 'Naha', '那霸': 'Naha', '首爾': 'Seoul', '釜山': 'Busan', '濟州': 'Jeju', '濟州島': 'Jeju', '峴港': 'Da Nang', '胡志明': 'Ho Chi Minh City', '河內': 'Hanoi', '峇里': 'Denpasar', '峇里島': 'Denpasar', '巴里島': 'Denpasar', '宿霧': 'Cebu', '長灘島': 'Boracay', '吉隆坡': 'Kuala Lumpur', '檳城': 'George Town', '暹粒': 'Siem Reap', '琅勃拉邦': 'Luang Prabang', '蘇黎世': 'Zurich', '琉森': 'Lucerne', '策馬特': 'Zermatt', '因特拉肯': 'Interlaken', '佛羅倫斯': 'Florence', '威尼斯': 'Venice', '羅馬': 'Rome', '米蘭': 'Milan', '倫敦': 'London', '紐約': 'New York', '夏威夷': 'Honolulu', '雪梨': 'Sydney', '墨爾本': 'Melbourne', '伊斯坦堡': 'Istanbul' };
+const T2S = { 邁: '迈', 達: '达', 爾: '尔', 繩: '绳', 灣: '湾', 臺: '台', 蘭: '兰', 華: '华', 島: '岛', 濟: '济', 漢: '汉', 門: '门', 園: '园', 東: '东', 長: '长', 馬: '马', 來: '来', 亞: '亚', 灘: '滩', 龍: '龙', 廣: '广', 黃: '黄', 紐: '纽', 約: '约', 倫: '伦', 維: '维', 納: '纳', 羅: '罗', 樂: '乐', 蘇: '苏', 國: '国', 義: '义', 頓: '顿', 盧: '卢', 貝: '贝', 萊: '莱', 峴: '岘', 內: '内', 檳: '槟', 寧: '宁', 陽: '阳', 慶: '庆', 鄉: '乡', 溫: '温', 爾: '尔', 葉: '叶', 會: '会', 灣: '湾', 澤: '泽', 廈: '厦', 興: '兴', 鳥: '鸟', 縣: '县', 黎: '黎', 舊: '旧', 金: '金', 聖: '圣', 德: '德', 歐: '欧', 漁: '渔', 嶼: '屿' };
 async function wxGeocode(q){
-  const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=${UI.lang && UI.lang !== 'zh' ? UI.lang : 'zh'}&format=json`);
-  const j = await r.json(); return j.results || [];
+  const lang = UI.lang && UI.lang !== 'zh' ? UI.lang : 'zh';
+  const one = async (name, L) => { const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=6&language=${L}&format=json`); const j = await r.json(); return j.results || []; };
+  const k = q.trim(); const alias = WX_ALIAS[k] || WX_ALIAS[k.replace(/(市|島)$/, '')];
+  if (alias) { const r = await one(alias, lang); if (r.length) return r; }
+  let r = await one(k, lang); if (r.length) return r;
+  const s = [...k].map(c => T2S[c] || c).join('');
+  if (s !== k) { r = await one(s, lang); if (r.length) return r; }
+  return lang === 'en' ? [] : one(k, 'en');
 }
 async function wxDay(p, iso){
   const today = localISO(new Date()); const dd = diffDays(today, iso);
